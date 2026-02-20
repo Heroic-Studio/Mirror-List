@@ -1,0 +1,52 @@
+name: Deploy Hexo to Pages
+
+# 触发条件：当推送到 main 分支时触发（如果你的默认分支是 master，请改成 master）
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. 检出源码
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        
+      # 2. 设置 Node.js 环境
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # 建议使用较新的 LTS 版本
+
+      # 3. 安装依赖
+      - name: Install Dependencies
+        run: npm install
+
+      # 4. 清除缓存并生成静态文件 (public 目录)
+      - name: Generate Hexo Static Files
+        run: |
+          npx hexo clean
+          npx hexo generate
+
+      # 5. 将 README.md 复制到 public 目录
+      - name: Copy README
+        run: cp source/_posts/README.md public/README.md
+
+      # 6. 部署到目标 GitHub Pages 仓库
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          # 使用我们在仓库 Secrets 中配置的 Token
+          personal_token: ${{ secrets.DEPLOY_TOKEN }}
+          # 替换为你的 GitHub Pages 仓库路径，例如：username/username.github.io
+          external_repository: Heroic-Studio/Google-Mirrors
+          # 推送到目标仓库的哪个分支（通常是 main 或 master）
+          publish_branch: master
+          # 需要推送的目录，Hexo 默认生成在 public 下
+          publish_dir: ./public
+          # 提交信息
+          commit_message: 'Auto deploy from GitHub Actions'
+          
