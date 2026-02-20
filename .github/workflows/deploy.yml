@@ -31,10 +31,13 @@ jobs:
           npx hexo clean
           npx hexo generate
 
-      # 5. 将 README.md 复制到 public 目录
+      # 5. 将文件复制到 public 目录
       - name: Copy README
-        run: cp source/_posts/README.md public/README.md
-
+        run: |
+          cp source/_posts/README.md public/README.md
+          cp CNAME public/CNAME
+          cp LICENSE public/LICENSE
+          
       # 6. 部署到目标 GitHub Pages 仓库
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
